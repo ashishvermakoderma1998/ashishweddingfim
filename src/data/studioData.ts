@@ -1,4 +1,4 @@
-import { Service, GalleryItem, Review } from '../types';
+import { Service, GalleryItem, Review, KarizmaAlbumItem } from '../types';
 
 export const INITIAL_SERVICES: Service[] = [
   {
@@ -490,3 +490,109 @@ export const INITIAL_REVIEWS: Review[] = [
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString()
   }
 ];
+
+export const INITIAL_KARIZMA_ALBUMS: KarizmaAlbumItem[] = [
+  {
+    id: 'krz-1',
+    title: 'Royal Marwari Vivah - Velvet Layflat Edition',
+    coupleName: 'Rahul & Priya',
+    albumType: 'Royal Velvet',
+    coverImage: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=85',
+    sheetsCount: 40,
+    eventDate: '2026-02-18',
+    location: 'Royal Palace Banquet, Jhumri Telaiya',
+    description: '12x36 Seamless panoramic layflat wedding album in waterproof Non-Tearable Velvet sheet with embossed golden couple monogram and matching padded briefcase.',
+    spreads: [
+      'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=1600&q=85'
+    ],
+    featured: true,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 15).toISOString()
+  },
+  {
+    id: 'krz-2',
+    title: 'Bhojpuri Heritage Wedding - Canvera HD Silk',
+    coupleName: 'Amit & Shweta',
+    albumType: 'Canvera HD',
+    coverImage: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=1200&q=85',
+    sheetsCount: 35,
+    eventDate: '2026-01-24',
+    location: 'Utsav Marriage Hall, Koderma',
+    description: 'Ultra-High-Definition Canvera Silk photobook with 180-degree flat opening, anti-scratch coating, vibrant Sindoor Daan highlights, and Baraat double spreads.',
+    spreads: [
+      'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=1600&q=85'
+    ],
+    featured: true,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 25).toISOString()
+  },
+  {
+    id: 'krz-3',
+    title: 'Sunset Whispers Pre-Wedding - 3D Acrylic Glass Cover',
+    coupleName: 'Vikram & Neha',
+    albumType: 'Acrylic Glass',
+    coverImage: 'https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=1200&q=85',
+    sheetsCount: 25,
+    eventDate: '2026-03-02',
+    location: 'Tilaiya Dam & Reservoir, Jharkhand',
+    description: 'Luxury front 6mm beveled Acrylic Glass cover with sparkling metallic photographic paper inside. Preserves sunset hues and water reflections.',
+    spreads: [
+      'https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1600&q=85'
+    ],
+    featured: true,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString()
+  },
+  {
+    id: 'krz-4',
+    title: 'Grand Rajwada Celebration - Metallic Sheen Book',
+    coupleName: 'Ankit & Sneha',
+    albumType: 'Metallic Sheen',
+    coverImage: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=85',
+    sheetsCount: 45,
+    eventDate: '2025-12-14',
+    location: 'Surya Mandir Road, Jhumri Telaiya',
+    description: 'Foil-pressed gold edges, high-contrast metallic luster paper, 45 panoramic sheets depicting Haldi, Mehendi, Sangeet, and Vidai rituals.',
+    spreads: [
+      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=85'
+    ],
+    featured: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 40).toISOString()
+  },
+  {
+    id: 'krz-5',
+    title: 'Timeless Romance - Handcrafted Leatherite Cameo',
+    coupleName: 'Rohan & Megha',
+    albumType: 'Leatherite Cameo',
+    coverImage: 'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=1200&q=85',
+    sheetsCount: 30,
+    eventDate: '2026-01-10',
+    location: 'Hazaribagh / Koderma Highway Resort',
+    description: 'Rich vintage brown leatherite hard-binding with a center cameo photo window. Archival acid-free matte finish paper that lasts for generations.',
+    spreads: [
+      'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=1600&q=85'
+    ],
+    featured: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 50).toISOString()
+  }
+];
+
+export const STUDIO_SOCIAL_LINKS = {
+  facebook: 'https://www.facebook.com/ashishweddingfilm',
+  instagram: 'https://www.instagram.com/ashishweddingfilm',
+  youtube: 'https://www.youtube.com/@ashishweddingfilm',
+  whatsapp: 'https://wa.me/918709017294?text=Hello%20Ashish%20Wedding%20Film%20Studio,%20I%20want%20to%20inquire%20about%20your%20photography%20and%20film%20packages.'
+};

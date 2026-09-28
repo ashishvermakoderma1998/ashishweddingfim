@@ -9,11 +9,61 @@ export interface User {
   avatar?: string;
   city?: string;
   createdAt: string;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
+  mfaEnabled?: boolean;
+  lastLoginAt?: string;
+  lastLoginIp?: string;
 }
 
 export interface AuthResponse {
   token: string;
   user: User;
+  mfaRequired?: boolean;
+  mfaChallengeToken?: string;
+  message?: string;
+  phoneOtpDispatched?: boolean;
+  phoneOtpHint?: string;
+  maskedPhone?: string;
+}
+
+export interface SecurityAuditLog {
+  id: string;
+  timestamp: string;
+  eventType: 
+    | 'LOGIN_SUCCESS'
+    | 'LOGIN_FAILED'
+    | 'ACCOUNT_LOCKED'
+    | 'LOGOUT'
+    | 'PASSWORD_RESET_REQUEST'
+    | 'PASSWORD_RESET_SUCCESS'
+    | 'EMAIL_VERIFIED'
+    | 'PHONE_VERIFIED'
+    | 'GMAIL_OTP_DISPATCHED'
+    | 'GMAIL_OTP_VERIFIED'
+    | 'GMAIL_OTP_FAILED'
+    | 'PHONE_OTP_DISPATCHED'
+    | 'PHONE_OTP_VERIFIED'
+    | 'PHONE_OTP_FAILED'
+    | 'MFA_ENABLED'
+    | 'MFA_DISABLED'
+    | 'MFA_CHALLENGE_SUCCESS'
+    | 'MFA_CHALLENGE_FAILED'
+    | 'UNAUTHORIZED_ACCESS_ATTEMPT'
+    | 'RATE_LIMIT_EXCEEDED'
+    | 'SUSPICIOUS_INPUT';
+  severity: 'info' | 'warn' | 'critical';
+  userId?: string;
+  emailMasked?: string;
+  ip?: string;
+  userAgent?: string;
+  details: string;
+}
+
+export interface MfaSetupData {
+  secret: string;
+  otpauthUrl: string;
+  recoveryCodes: string[];
 }
 
 export type ServiceCategory = 
@@ -97,6 +147,7 @@ export interface Enquiry {
   message: string;
   status: 'New' | 'In Touch' | 'Converted' | 'Closed';
   adminReply?: string;
+  isDemo?: boolean;
   createdAt: string;
 }
 
@@ -125,6 +176,29 @@ export interface GalleryItem {
   featured?: boolean;
 }
 
+export type KarizmaFinish = 
+  | 'Royal Velvet' 
+  | 'Canvera HD' 
+  | 'Acrylic Glass' 
+  | 'Metallic Sheen' 
+  | 'Leatherite Cameo' 
+  | 'Silk Matte';
+
+export interface KarizmaAlbumItem {
+  id: string;
+  title: string;
+  coupleName: string;
+  albumType: KarizmaFinish;
+  coverImage: string;
+  sheetsCount: number;
+  eventDate?: string;
+  location?: string;
+  description: string;
+  spreads: string[];
+  featured?: boolean;
+  createdAt: string;
+}
+
 export interface ChatMessage {
   id: string;
   sender: 'user' | 'bot';
@@ -147,3 +221,21 @@ export interface AdminStats {
   totalReviews: number;
   pendingReviews: number;
 }
+
+export interface PaymentSettings {
+  upiId: string;
+  phone: string;
+  merchantName: string;
+  bankName: string;
+  accountNumber: string;
+  ifscCode: string;
+  accountHolder: string;
+  razorpayKeyId: string;
+  razorpayKeySecret?: string;
+  studioLocation: string;
+  currency: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  youtubeUrl?: string;
+}
+

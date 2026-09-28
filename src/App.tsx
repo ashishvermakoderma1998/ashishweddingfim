@@ -13,6 +13,7 @@ import { AboutPage } from './pages/AboutPage';
 import { ServicesPage } from './pages/ServicesPage';
 import { ServiceDetailPage } from './pages/ServiceDetailPage';
 import { GalleryPage } from './pages/GalleryPage';
+import { KarizmaAlbumPage } from './pages/KarizmaAlbumPage';
 import { PricingPage } from './pages/PricingPage';
 import { ReviewsPage } from './pages/ReviewsPage';
 import { EnquiryPage } from './pages/EnquiryPage';
@@ -98,6 +99,13 @@ const MainAppContent: React.FC = () => {
           />
         )}
 
+        {currentPage === 'karizma-albums' && (
+          <KarizmaAlbumPage
+            onOpenBooking={handleOpenBooking}
+            onNavigate={navigateTo}
+          />
+        )}
+
         {currentPage === 'pricing' && (
           <PricingPage
             onNavigate={navigateTo}
@@ -126,7 +134,7 @@ const MainAppContent: React.FC = () => {
           />
         )}
 
-        {(currentPage === 'login' || currentPage === 'signup' || currentPage === 'admin-login') && (
+        {(currentPage === 'login' || currentPage === 'signup') && (
           <AuthPage
             initialMode={currentPage === 'signup' ? 'signup' : 'login'}
             onNavigate={navigateTo}
@@ -149,7 +157,7 @@ const MainAppContent: React.FC = () => {
 
         {currentPage === 'admin' && (
           <AdminDashboardPage
-            onNavigateToLogin={() => navigateTo('admin-login')}
+            onNavigateToLogin={() => navigateTo('login')}
           />
         )}
 

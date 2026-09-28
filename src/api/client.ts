@@ -7,14 +7,17 @@ import {
   Enquiry, 
   Review, 
   GalleryItem, 
-  AdminStats 
+  KarizmaAlbumItem,
+  AdminStats,
+  PaymentSettings
 } from '../types';
-import { INITIAL_SERVICES, INITIAL_GALLERY, INITIAL_REVIEWS } from '../data/studioData';
+import { INITIAL_SERVICES, INITIAL_GALLERY, INITIAL_REVIEWS, INITIAL_KARIZMA_ALBUMS } from '../data/studioData';
 
 const TOKEN_KEY = 'awf_auth_token';
 const USERS_STORAGE_KEY = 'awf_local_users';
 const SERVICES_STORAGE_KEY = 'awf_local_services';
 const GALLERY_STORAGE_KEY = 'awf_local_gallery';
+const KARIZMA_STORAGE_KEY = 'awf_local_karizma_albums';
 const BOOKINGS_STORAGE_KEY = 'awf_local_bookings';
 const PAYMENTS_STORAGE_KEY = 'awf_local_payments';
 const ENQUIRIES_STORAGE_KEY = 'awf_local_enquiries';
@@ -40,17 +43,6 @@ const seedLocalDataIfEmpty = () => {
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
         password: 'Ashish@2026!',
         createdAt: new Date().toISOString()
-      },
-      {
-        id: 'usr-demo-client',
-        name: 'Rohan Sharma',
-        email: 'rohan.client@gmail.com',
-        phone: '+91 87090 17294',
-        role: 'user',
-        city: 'Ranchi, Jharkhand',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
-        password: 'User@1234',
-        createdAt: new Date().toISOString()
       }
     ];
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(defaultUsers));
@@ -64,75 +56,24 @@ const seedLocalDataIfEmpty = () => {
     localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(INITIAL_GALLERY));
   }
 
+  if (!localStorage.getItem(KARIZMA_STORAGE_KEY)) {
+    localStorage.setItem(KARIZMA_STORAGE_KEY, JSON.stringify(INITIAL_KARIZMA_ALBUMS));
+  }
+
   if (!localStorage.getItem(REVIEWS_STORAGE_KEY)) {
     localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(INITIAL_REVIEWS));
   }
 
   if (!localStorage.getItem(BOOKINGS_STORAGE_KEY)) {
-    const defaultBookings: Booking[] = [
-      {
-        id: 'bkg-demo-1',
-        bookingNumber: 'AWF-2026-1082',
-        userId: 'usr-demo-client',
-        userName: 'Rohan Sharma',
-        userEmail: 'rohan.client@gmail.com',
-        userPhone: '+91 87090 17294',
-        serviceId: 'srv-wedding-photo',
-        serviceTitle: 'Wedding Photography',
-        servicePrice: 25000,
-        eventType: 'Traditional Wedding',
-        eventDate: '2026-11-20',
-        eventTime: '17:00',
-        eventLocation: 'Royal Palace Banquet, Jhumri Telaiya, Jharkhand',
-        hours: 8,
-        additionalRequirements: 'Require 2 candid photographers and 1 traditional team.',
-        referenceImages: [],
-        bookingAmount: 25000,
-        advanceAmount: 7500,
-        paymentStatus: 'Paid',
-        bookingStatus: 'Confirmed',
-        paymentId: 'pay_RZP_demo1082',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString(),
-        updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString()
-      }
-    ];
-    localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(defaultBookings));
+    localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify([]));
   }
 
   if (!localStorage.getItem(PAYMENTS_STORAGE_KEY)) {
-    const defaultPayments: PaymentRecord[] = [
-      {
-        id: 'pay-demo-1',
-        transactionId: 'txn_RZP_demo1082',
-        bookingId: 'bkg-demo-1',
-        userId: 'usr-demo-client',
-        userName: 'Rohan Sharma',
-        userEmail: 'rohan.client@gmail.com',
-        amount: 7500,
-        method: 'Razorpay',
-        paymentStatus: 'Success',
-        receiptNumber: 'RCP-2026-1082',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString()
-      }
-    ];
-    localStorage.setItem(PAYMENTS_STORAGE_KEY, JSON.stringify(defaultPayments));
+    localStorage.setItem(PAYMENTS_STORAGE_KEY, JSON.stringify([]));
   }
 
   if (!localStorage.getItem(ENQUIRIES_STORAGE_KEY)) {
-    const defaultEnquiries: Enquiry[] = [
-      {
-        id: 'enq-demo-1',
-        name: 'Amit Verma',
-        email: 'amit.verma@gmail.com',
-        phone: '+91 87090 17294',
-        service: 'Cinematic Wedding Films',
-        eventDate: '2026-12-14',
-        message: 'Looking for full 4K drone and 3-day wedding film package in Koderma.',
-        status: 'New',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString()
-      }
-    ];
-    localStorage.setItem(ENQUIRIES_STORAGE_KEY, JSON.stringify(defaultEnquiries));
+    localStorage.setItem(ENQUIRIES_STORAGE_KEY, JSON.stringify([]));
   }
 };
 
@@ -159,7 +100,10 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
     if (contentType.includes('application/json')) {
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data?.error || `Request failed with status ${response.status}`);
+        const error: any = new Error(data?.error || `Request failed with status ${response.status}`);
+        error.status = response.status;
+        error.data = data;
+        throw error;
       }
       return data as T;
     }
@@ -172,7 +116,11 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
     const data = await response.json().catch(() => ({}));
     return data as T;
   } catch (err: any) {
-    // If backend is down or not running (e.g. VS Code pure Vite run), use seamless local mock fallback
+    // If the server responded with an error status (400, 401, 403, 409, 423, 429), rethrow so UI can display it
+    if (err?.status) {
+      throw err;
+    }
+    // If network fetch failed entirely, attempt safe local fallback
     return handleLocalFallback<T>(endpoint, options, err);
   }
 }
@@ -183,6 +131,102 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}, ori
   const users: any[] = JSON.parse(localStorage.getItem(USERS_STORAGE_KEY) || '[]');
   const method = options.method || 'GET';
   const body = options.body ? JSON.parse(options.body as string) : {};
+
+  // Auth: Gmail OTP Send for Account Creation
+  if (endpoint === '/api/auth/register-otp/send' && method === 'POST') {
+    const { name, email, phone, password, city } = body;
+    if (!name || !email || !password) {
+      throw new Error('Name, email, and password are required');
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const existing = users.find(u => u.email.toLowerCase() === cleanEmail);
+    if (existing) {
+      throw new Error('An account with this email already exists');
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const pendingData = {
+      name: name.trim(),
+      email: cleanEmail,
+      phone: phone?.trim() || '',
+      password,
+      city: city || 'Jhumri Telaiya, Jharkhand',
+      otp,
+      expiresAt: Date.now() + 10 * 60 * 1000
+    };
+    sessionStorage.setItem('pending_reg_' + cleanEmail, JSON.stringify(pendingData));
+
+    return {
+      message: `A 6-digit verification code has been sent to your Gmail (${cleanEmail}).`,
+      email: cleanEmail,
+      expiresInSeconds: 600,
+      otpHint: otp
+    } as unknown as T;
+  }
+
+  // Auth: Gmail OTP Verify for Account Creation
+  if (endpoint === '/api/auth/register-otp/verify' && method === 'POST') {
+    const { email, otp } = body;
+    const cleanEmail = email.trim().toLowerCase();
+    const raw = sessionStorage.getItem('pending_reg_' + cleanEmail);
+    if (!raw) {
+      throw new Error('Verification session expired. Please click resend OTP.');
+    }
+    const pending = JSON.parse(raw);
+    const cleanOtp = otp.toString().replace(/\D/g, '').trim();
+    const validOtps = [pending.otp, ...(pending.otps || [])].filter(Boolean).map(String);
+
+    if (!validOtps.includes(cleanOtp) && cleanOtp !== pending.otp?.toString().trim()) {
+      throw new Error(`Invalid verification code. Please check your Gmail (${cleanEmail}) or use the Auto Fill button.`);
+    }
+
+    sessionStorage.removeItem('pending_reg_' + cleanEmail);
+
+    const isStudioAdmin = cleanEmail === 'ashishweddingfilm@gmail.com' || cleanEmail === 'ashishsawitri@gmail.com';
+    const newUser = {
+      id: 'usr-' + Date.now(),
+      name: pending.name,
+      email: cleanEmail,
+      phone: pending.phone || '',
+      city: pending.city || 'Jhumri Telaiya, Jharkhand',
+      role: isStudioAdmin ? 'admin' : 'user',
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(pending.name)}`,
+      password: pending.password,
+      emailVerified: true,
+      createdAt: new Date().toISOString()
+    };
+
+    users.push(newUser);
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+
+    const simulatedToken = 'local-tok-' + btoa(cleanEmail) + '-' + Date.now();
+    const { password: _, ...safeUser } = newUser;
+    return { message: 'Account created successfully', token: simulatedToken, user: safeUser } as unknown as T;
+  }
+
+  // Auth: Gmail OTP Resend
+  if (endpoint === '/api/auth/register-otp/resend' && method === 'POST') {
+    const { email } = body;
+    const cleanEmail = email.trim().toLowerCase();
+    const raw = sessionStorage.getItem('pending_reg_' + cleanEmail);
+    if (!raw) {
+      throw new Error('No pending registration found. Please submit registration again.');
+    }
+    const pending = JSON.parse(raw);
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    if (!pending.otps) {
+      pending.otps = [pending.otp];
+    }
+    pending.otps.push(newOtp);
+    pending.otp = newOtp;
+    pending.expiresAt = Date.now() + 10 * 60 * 1000;
+    sessionStorage.setItem('pending_reg_' + cleanEmail, JSON.stringify(pending));
+
+    return {
+      message: `A fresh 6-digit verification code has been dispatched to ${cleanEmail}`,
+      otpHint: newOtp
+    } as unknown as T;
+  }
 
   // Auth: Register
   if (endpoint === '/api/auth/register' && method === 'POST') {
@@ -200,7 +244,7 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}, ori
       id: 'usr-' + Date.now(),
       name: name.trim(),
       email: cleanEmail,
-      phone: phone || '+91 87090 17294',
+      phone: phone?.trim() || '',
       city: city || 'Jhumri Telaiya, Jharkhand',
       role: cleanEmail === 'ashishweddingfilm@gmail.com' ? 'admin' : 'user',
       avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
@@ -374,6 +418,86 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}, ori
     }
   }
 
+  // Karizma Albums fallback
+  if (endpoint.startsWith('/api/karizma-albums')) {
+    const albums: KarizmaAlbumItem[] = JSON.parse(localStorage.getItem(KARIZMA_STORAGE_KEY) || '[]');
+    const sub = endpoint.replace('/api/karizma-albums', '').replace(/^\//, '');
+
+    // GET all albums
+    if (!sub && method === 'GET') {
+      return (albums.length > 0 ? albums : INITIAL_KARIZMA_ALBUMS) as unknown as T;
+    }
+
+    // GET single album
+    if (sub && !sub.includes('/') && method === 'GET') {
+      const found = albums.find(a => a.id === sub) || INITIAL_KARIZMA_ALBUMS.find(a => a.id === sub);
+      if (!found) throw new Error('Album not found');
+      return found as unknown as T;
+    }
+
+    // CREATE new album
+    if (!sub && method === 'POST') {
+      const newAlbum: KarizmaAlbumItem = {
+        id: 'krz-' + Date.now(),
+        title: body.title || 'Royal Wedding Album',
+        coupleName: body.coupleName || 'Royal Couple',
+        albumType: body.albumType || 'Royal Velvet',
+        coverImage: body.coverImage || 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=85',
+        sheetsCount: Number(body.sheetsCount) || 35,
+        eventDate: body.eventDate || new Date().toISOString().split('T')[0],
+        location: body.location || 'Jhumri Telaiya, Jharkhand',
+        description: body.description || 'Exclusive luxury wedding photobook by Ashish Wedding Film Studio.',
+        spreads: Array.isArray(body.spreads) && body.spreads.length > 0 ? body.spreads : [body.coverImage],
+        featured: !!body.featured,
+        createdAt: new Date().toISOString()
+      };
+      albums.unshift(newAlbum);
+      localStorage.setItem(KARIZMA_STORAGE_KEY, JSON.stringify(albums));
+      return newAlbum as unknown as T;
+    }
+
+    // UPDATE album
+    if (sub && !sub.includes('/') && method === 'PUT') {
+      const idx = albums.findIndex(a => a.id === sub);
+      if (idx !== -1) {
+        albums[idx] = { ...albums[idx], ...body };
+        localStorage.setItem(KARIZMA_STORAGE_KEY, JSON.stringify(albums));
+        return albums[idx] as unknown as T;
+      }
+    }
+
+    // DELETE album
+    if (sub && !sub.includes('/') && method === 'DELETE') {
+      const updated = albums.filter(a => a.id !== sub);
+      localStorage.setItem(KARIZMA_STORAGE_KEY, JSON.stringify(updated));
+      return { message: 'Karizma album deleted successfully' } as unknown as T;
+    }
+
+    // ADD spread to album
+    if (sub.includes('/spreads') && method === 'POST') {
+      const albumId = sub.split('/')[0];
+      const idx = albums.findIndex(a => a.id === albumId);
+      if (idx !== -1 && body.spreadUrl) {
+        albums[idx].spreads.push(body.spreadUrl);
+        localStorage.setItem(KARIZMA_STORAGE_KEY, JSON.stringify(albums));
+        return albums[idx] as unknown as T;
+      }
+    }
+
+    // DELETE spread from album
+    if (sub.includes('/spreads/') && method === 'DELETE') {
+      const parts = sub.split('/');
+      const albumId = parts[0];
+      const spreadIdx = parseInt(parts[2], 10);
+      const idx = albums.findIndex(a => a.id === albumId);
+      if (idx !== -1 && !isNaN(spreadIdx) && spreadIdx >= 0 && spreadIdx < albums[idx].spreads.length) {
+        albums[idx].spreads.splice(spreadIdx, 1);
+        localStorage.setItem(KARIZMA_STORAGE_KEY, JSON.stringify(albums));
+        return albums[idx] as unknown as T;
+      }
+    }
+  }
+
   // Bookings fallback
   if (endpoint.startsWith('/api/bookings')) {
     const bookings: Booking[] = JSON.parse(localStorage.getItem(BOOKINGS_STORAGE_KEY) || '[]');
@@ -386,10 +510,10 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}, ori
       const newBooking: Booking = {
         id: 'bkg-' + Date.now(),
         bookingNumber: 'AWF-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000),
-        userId: body.userId || 'usr-demo-client',
+        userId: body.userId || 'usr-client-' + Date.now(),
         userName: body.userName || 'Client',
-        userEmail: body.userEmail || 'client@example.com',
-        userPhone: body.userPhone || '+91 87090 17294',
+        userEmail: body.userEmail || '',
+        userPhone: body.userPhone || '',
         serviceId: body.serviceId || 'srv-wedding-photo',
         serviceTitle: body.serviceTitle || 'Wedding Photography',
         servicePrice: body.servicePrice || 25000,
@@ -496,9 +620,9 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}, ori
     if (!id && method === 'POST') {
       const newEnquiry: Enquiry = {
         id: 'enq-' + Date.now(),
-        name: body.name || 'Visitor',
-        email: body.email || 'visitor@gmail.com',
-        phone: body.phone || '+91 87090 17294',
+        name: body.name || 'Client',
+        email: body.email || '',
+        phone: body.phone || '',
         service: body.service || 'Royal Wedding Cinematography',
         eventDate: body.eventDate || '',
         message: body.message || '',
@@ -601,17 +725,82 @@ function handleLocalFallback<T>(endpoint: string, options: RequestInit = {}, ori
 }
 
 export const api = {
-  // Auth
+  // Auth - Gmail OTP Account Creation
+  sendRegisterOtp: (payload: { name: string; email: string; phone?: string; password: string; city?: string }) =>
+    apiRequest<{ message: string; email: string; expiresInSeconds: number; otpHint?: string }>('/api/auth/register-otp/send', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  verifyRegisterOtp: (payload: { email: string; otp: string }) =>
+    apiRequest<AuthResponse>('/api/auth/register-otp/verify', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  resendRegisterOtp: (email: string) =>
+    apiRequest<{ message: string; otpHint?: string }>('/api/auth/register-otp/resend', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  // Auth - Legacy Register
   register: (payload: { name: string; email: string; phone?: string; password: string; city?: string }) =>
-    apiRequest<AuthResponse>('/api/auth/register', {
+    apiRequest<AuthResponse & { verificationCodeHint?: string }>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
 
   login: (payload: { email: string; password: string }) =>
-    apiRequest<AuthResponse>('/api/auth/login', {
+    apiRequest<AuthResponse & { mfaRequired?: boolean; mfaChallengeToken?: string }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify(payload),
+    }),
+
+  loginMfaChallenge: (payload: { mfaChallengeToken: string; code: string }) =>
+    apiRequest<AuthResponse & { recoveryUsed?: boolean }>('/api/auth/mfa/challenge', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  setupMfa: (currentPassword: string) =>
+    apiRequest<{ secret: string; otpauthUrl: string; recoveryCodes: string[] }>('/api/auth/mfa/setup', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword }),
+    }),
+
+  verifyMfa: (code: string) =>
+    apiRequest<{ message: string; mfaEnabled: boolean }>('/api/auth/mfa/verify', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    }),
+
+  disableMfa: (payload: { currentPassword: string; code?: string }) =>
+    apiRequest<{ message: string }>('/api/auth/mfa/disable', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  verifyEmail: (payload: { email: string; code: string }) =>
+    apiRequest<{ message: string; user: User }>('/api/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  resendVerification: (email: string) =>
+    apiRequest<{ message: string; verificationCodeHint?: string }>('/api/auth/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  logout: () =>
+    apiRequest<{ message: string }>('/api/auth/logout', {
+      method: 'POST',
+    }),
+
+  revokeAllSessions: () =>
+    apiRequest<{ message: string }>('/api/auth/revoke-all-sessions', {
+      method: 'POST',
     }),
 
   getMe: () => apiRequest<{ user: User }>('/api/auth/me'),
@@ -623,16 +812,36 @@ export const api = {
     }),
 
   forgotPassword: (email: string) =>
-    apiRequest<{ message: string; simulatedResetToken?: string }>('/api/auth/forgot-password', {
+    apiRequest<{ message: string; resetCodeHint?: string }>('/api/auth/forgot-password', {
       method: 'POST',
       body: JSON.stringify({ email }),
     }),
 
-  resetPassword: (payload: { email: string; newPassword: string; resetToken?: string }) =>
+  resendForgotPasswordOtp: (email: string) =>
+    apiRequest<{ message: string; resetCodeHint?: string }>('/api/auth/forgot-password/resend', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (payload: { email: string; code: string; newPassword: string }) =>
     apiRequest<{ message: string }>('/api/auth/reset-password', {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+
+  // Security Audit (Admin)
+  getSecurityLogs: () =>
+    apiRequest<{
+      logs: any[];
+      stats: {
+        totalEvents: number;
+        criticalEventsCount: number;
+        warningEventsCount: number;
+        mfaEnabledUsers: number;
+        verifiedUsers: number;
+        activeProtections: Record<string, string>;
+      };
+    }>('/api/admin/security/logs'),
 
   // Services
   getServices: () => apiRequest<Service[]>('/api/services'),
@@ -653,13 +862,50 @@ export const api = {
     }),
 
   // Bookings
-  getBookings: () => apiRequest<Booking[]>('/api/bookings'),
+  getBookings: async () => {
+    try {
+      const res = await apiRequest<Booking[]>('/api/bookings');
+      // Merge with local storage cache so no offline/client bookings are missed
+      try {
+        const localBookings: Booking[] = JSON.parse(localStorage.getItem(BOOKINGS_STORAGE_KEY) || '[]');
+        const existingIds = new Set((res || []).map((b) => b.id));
+        const combined = Array.isArray(res) ? [...res] : [];
+        for (const b of localBookings) {
+          if (!existingIds.has(b.id)) {
+            combined.push(b);
+          }
+        }
+        localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(combined));
+        return combined;
+      } catch {
+        return res || [];
+      }
+    } catch (err) {
+      return handleLocalFallback<Booking[]>('/api/bookings', { method: 'GET' }, err);
+    }
+  },
   getBookingById: (id: string) => apiRequest<Booking>(`/api/bookings/${id}`),
-  createBooking: (payload: any) =>
-    apiRequest<Booking>('/api/bookings', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+  createBooking: async (payload: any) => {
+    try {
+      const res = await apiRequest<Booking>('/api/bookings', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      // Synchronize in local storage cache
+      try {
+        const localBookings: Booking[] = JSON.parse(localStorage.getItem(BOOKINGS_STORAGE_KEY) || '[]');
+        if (!localBookings.some((b) => b.id === res.id)) {
+          localBookings.unshift(res);
+          localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(localBookings));
+        }
+      } catch {
+        // ignore
+      }
+      return res;
+    } catch (err) {
+      return handleLocalFallback<Booking>('/api/bookings', { method: 'POST', body: JSON.stringify(payload) }, err);
+    }
+  },
   updateBookingStatus: (id: string, payload: { bookingStatus?: string; paymentStatus?: string; notes?: string }) =>
     apiRequest<Booking>(`/api/bookings/${id}/status`, {
       method: 'PUT',
@@ -677,31 +923,103 @@ export const api = {
 
   // Payments
   getPayments: () => apiRequest<PaymentRecord[]>('/api/payments'),
-  createPayment: (payload: {
+  createPayment: async (payload: {
     bookingId: string;
     amount: number;
     method?: string;
     paymentStatus?: string;
     razorpayPaymentId?: string;
-  }) =>
-    apiRequest<{ message: string; payment: PaymentRecord; receiptNumber: string }>('/api/payments', {
+    userName?: string;
+    userEmail?: string;
+  }) => {
+    try {
+      const res = await apiRequest<{ message: string; payment: PaymentRecord; receiptNumber: string }>('/api/payments', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      try {
+        const localPayments: PaymentRecord[] = JSON.parse(localStorage.getItem(PAYMENTS_STORAGE_KEY) || '[]');
+        if (res?.payment && !localPayments.some((p) => p.id === res.payment.id)) {
+          localPayments.unshift(res.payment);
+          localStorage.setItem(PAYMENTS_STORAGE_KEY, JSON.stringify(localPayments));
+        }
+      } catch {
+        // ignore
+      }
+      return res;
+    } catch (err) {
+      return handleLocalFallback<any>('/api/payments', { method: 'POST', body: JSON.stringify(payload) }, err);
+    }
+  },
+
+  // Payment Gateway Configuration & Order Generation
+  getPaymentConfig: () => apiRequest<PaymentSettings>('/api/payment-config'),
+  updatePaymentConfig: (payload: Partial<PaymentSettings>) =>
+    apiRequest<{ message: string; settings: PaymentSettings }>('/api/payment-config', {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+  createPaymentOrder: (payload: { bookingId?: string; amount: number; serviceTitle?: string }) =>
+    apiRequest<{ id: string; orderId: string; amount: number; currency: string; keyId: string }>(
+      '/api/payment/create-order',
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }
+    ),
 
   // Enquiries
-  getEnquiries: () => apiRequest<Enquiry[]>('/api/enquiries'),
-  submitEnquiry: (payload: {
+  getEnquiries: async (): Promise<Enquiry[]> => {
+    try {
+      const serverEnquiries = await apiRequest<Enquiry[]>('/api/enquiries');
+      // Sync any local client enquiries created in offline fallback
+      try {
+        const localRaw = localStorage.getItem(ENQUIRIES_STORAGE_KEY);
+        if (localRaw) {
+          const localEnquiries: Enquiry[] = JSON.parse(localRaw);
+          const unsynced = localEnquiries.filter(
+            le => !serverEnquiries.some(se => se.id === le.id) && !le.isDemo && le.id !== 'enq-demo-1'
+          );
+          if (unsynced.length > 0) {
+            await apiRequest('/api/enquiries/sync', {
+              method: 'POST',
+              body: JSON.stringify({ enquiries: unsynced })
+            }).catch(() => {});
+            return await apiRequest<Enquiry[]>('/api/enquiries');
+          }
+        }
+      } catch {}
+      return serverEnquiries;
+    } catch {
+      return handleLocalFallback<Enquiry[]>('/api/enquiries', { method: 'GET' });
+    }
+  },
+  submitEnquiry: async (payload: {
     name: string;
-    email: string;
+    email?: string;
     phone: string;
     service?: string;
     eventDate?: string;
     message: string;
-  }) =>
-    apiRequest<{ message: string; enquiry: Enquiry }>('/api/enquiries', {
+  }) => {
+    const res = await apiRequest<{ message: string; enquiry: Enquiry }>('/api/enquiries', {
       method: 'POST',
       body: JSON.stringify(payload),
+    });
+    try {
+      if (res?.enquiry) {
+        const localList: Enquiry[] = JSON.parse(localStorage.getItem(ENQUIRIES_STORAGE_KEY) || '[]');
+        if (!localList.some(e => e.id === res.enquiry.id)) {
+          localList.unshift(res.enquiry);
+          localStorage.setItem(ENQUIRIES_STORAGE_KEY, JSON.stringify(localList));
+        }
+      }
+    } catch {}
+    return res;
+  },
+  clearDemoEnquiries: () =>
+    apiRequest<{ message: string; removedCount: number; remainingCount: number }>('/api/enquiries/demo/clear', {
+      method: 'DELETE',
     }),
   updateEnquiry: (id: string, payload: { status?: string; adminReply?: string }) =>
     apiRequest<Enquiry>(`/api/enquiries/${id}`, {
@@ -740,6 +1058,33 @@ export const api = {
     }),
   deleteGalleryItem: (id: string) =>
     apiRequest<{ message: string }>(`/api/gallery/${id}`, {
+      method: 'DELETE',
+    }),
+
+  // Karizma Albums
+  getKarizmaAlbums: () => apiRequest<KarizmaAlbumItem[]>('/api/karizma-albums'),
+  getKarizmaAlbumById: (id: string) => apiRequest<KarizmaAlbumItem>(`/api/karizma-albums/${id}`),
+  createKarizmaAlbum: (payload: Partial<KarizmaAlbumItem>) =>
+    apiRequest<KarizmaAlbumItem>('/api/karizma-albums', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updateKarizmaAlbum: (id: string, payload: Partial<KarizmaAlbumItem>) =>
+    apiRequest<KarizmaAlbumItem>(`/api/karizma-albums/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+  deleteKarizmaAlbum: (id: string) =>
+    apiRequest<{ message: string }>(`/api/karizma-albums/${id}`, {
+      method: 'DELETE',
+    }),
+  addSpreadToAlbum: (id: string, spreadUrl: string) =>
+    apiRequest<KarizmaAlbumItem>(`/api/karizma-albums/${id}/spreads`, {
+      method: 'POST',
+      body: JSON.stringify({ spreadUrl }),
+    }),
+  deleteSpreadFromAlbum: (id: string, spreadIndex: number) =>
+    apiRequest<KarizmaAlbumItem>(`/api/karizma-albums/${id}/spreads/${spreadIndex}`, {
       method: 'DELETE',
     }),
 

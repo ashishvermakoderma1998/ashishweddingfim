@@ -16,7 +16,12 @@ import {
   ShieldCheck,
   Music,
   GraduationCap,
-  Heart
+  Heart,
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  Search,
+  Globe
 } from 'lucide-react';
 import { api } from '../api/client';
 import { Service, Review, GalleryItem } from '../types';
@@ -35,6 +40,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   const [services, setServices] = useState<Service[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   useEffect(() => {
     api.getServices().then(setServices).catch(console.error);
@@ -102,12 +108,12 @@ export const HomePage: React.FC<HomePageProps> = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex flex-wrap items-center justify-center gap-4 pt-4"
+            className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-4 w-full max-w-md sm:max-w-none mx-auto"
           >
             <button
               id="hero-book-now-btn"
               onClick={() => onOpenBooking()}
-              className="px-8 py-4 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-neutral-950 font-extrabold text-sm sm:text-base shadow-2xl shadow-amber-500/30 hover:shadow-amber-500/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-neutral-950 font-extrabold text-sm sm:text-base shadow-2xl shadow-amber-500/30 hover:shadow-amber-500/50 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Calendar className="w-5 h-5" />
               <span>Book Your Event Now</span>
@@ -116,7 +122,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <button
               id="hero-view-services-btn"
               onClick={() => onNavigate('services')}
-              className="px-7 py-4 rounded-full bg-neutral-900/80 hover:bg-neutral-800 border border-neutral-700 text-white font-bold text-sm sm:text-base backdrop-blur-md hover:border-amber-500/50 transition-all flex items-center gap-2"
+              className="w-full sm:w-auto px-6 sm:px-7 py-3.5 sm:py-4 rounded-full bg-neutral-900/80 hover:bg-neutral-800 border border-neutral-700 text-white font-bold text-sm sm:text-base backdrop-blur-md hover:border-amber-500/50 transition-all flex items-center justify-center gap-2"
             >
               <Camera className="w-5 h-5 text-amber-400" />
               <span>Explore 14 Services</span>
@@ -125,7 +131,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <button
               id="hero-view-gallery-btn"
               onClick={() => onNavigate('gallery')}
-              className="px-6 py-4 rounded-full bg-neutral-900/40 hover:bg-neutral-900 text-neutral-300 hover:text-white font-medium text-sm sm:text-base border border-neutral-800 transition-colors"
+              className="w-full sm:w-auto px-6 py-3.5 sm:py-4 rounded-full bg-neutral-900/40 hover:bg-neutral-900 text-neutral-300 hover:text-white font-medium text-sm sm:text-base border border-neutral-800 transition-colors flex items-center justify-center"
             >
               View 4K Gallery
             </button>
@@ -295,12 +301,20 @@ export const HomePage: React.FC<HomePageProps> = ({
             ))}
           </div>
 
-          <div className="text-center mt-10">
+          <div className="text-center mt-10 flex flex-wrap items-center justify-center gap-4">
             <button
               onClick={() => onNavigate('gallery')}
-              className="px-8 py-3.5 rounded-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-amber-300 font-bold text-sm transition-all hover:border-amber-500/50"
+              className="px-6 py-3.5 rounded-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-200 font-bold text-sm transition-all hover:border-amber-500/50"
             >
-              Open Full Media Gallery & 4K Films →
+              Open Full Media Gallery & Films →
+            </button>
+
+            <button
+              onClick={() => onNavigate('karizma-albums')}
+              className="px-6 py-3.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 font-bold text-sm transition-all shadow-lg shadow-amber-500/20 flex items-center gap-2"
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>Karizma Albums Gallery (शीट गैलरी) →</span>
             </button>
           </div>
         </div>
@@ -479,6 +493,97 @@ export const HomePage: React.FC<HomePageProps> = ({
               Enquire for Next Batch
             </button>
           </div>
+        </div>
+      </section>
+
+      {/* REGIONAL SEO & LOCAL SEARCH HUB (Koderma, Jharkhand & India) */}
+      <section id="local-seo-hub" className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-neutral-900">
+        <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider">
+            <Globe className="w-3.5 h-3.5" />
+            <span>Serving Koderma, Jharkhand & Across India</span>
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-bold font-serif text-white">
+            Best Wedding Photography & Videography in Jharkhand
+          </h2>
+          <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed">
+            Ashish Wedding Film Studio is Jhumri Telaiya's premier photography powerhouse. We travel throughout Jharkhand, Bihar, and across India for destination weddings, royal ceremonies, pre-wedding shoots, and cinematic storytelling.
+          </p>
+        </div>
+
+        {/* Region & Coverage Pills for Search Discovery */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-12 text-center">
+          {[
+            { city: 'Koderma & Telaiya', desc: 'Main Studio & Academy', highlight: true },
+            { city: 'Hazaribagh', desc: 'Frequent Wedding Shoots', highlight: false },
+            { city: 'Ranchi', desc: 'Luxury Hotel Weddings', highlight: false },
+            { city: 'Dhanbad & Bokaro', desc: 'Candid & Drone Films', highlight: false },
+            { city: 'Giridih & Deoghar', desc: 'Temple & Destination Shoots', highlight: false },
+            { city: 'All India & Bihar', desc: 'Destination Wedding Tours', highlight: true },
+          ].map((loc, i) => (
+            <div
+              key={i}
+              className={`p-3.5 rounded-2xl border transition-all ${
+                loc.highlight
+                  ? 'bg-amber-500/10 border-amber-500/40 text-amber-300'
+                  : 'bg-neutral-900/60 border-neutral-800 text-neutral-300'
+              }`}
+            >
+              <MapPin className="w-4 h-4 mx-auto mb-1 text-amber-400" />
+              <div className="font-bold text-xs text-white">{loc.city}</div>
+              <div className="text-[10px] text-neutral-400 mt-0.5">{loc.desc}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* SEO FAQs Accordion matching Schema.org FAQPage */}
+        <div className="max-w-4xl mx-auto space-y-3">
+          <h3 className="text-lg font-bold text-white font-serif mb-4 flex items-center gap-2">
+            <Search className="w-4 h-4 text-amber-400" />
+            <span>Frequently Asked Questions — Ashish Studio Koderma</span>
+          </h3>
+
+          {[
+            {
+              q: 'Who is the best wedding photographer and videographer in Koderma, Jharkhand?',
+              a: 'Ashish Wedding Film Studio is widely recognized as the top wedding photographer in Koderma and Jhumri Telaiya, Jharkhand. With over 500+ successful royal weddings, Sony FX cinema gear, drone videography, and waterproof 12x36 Karizma albums, we deliver unmatched cinematic quality.'
+            },
+            {
+              q: 'Do you provide 4K drone cinematography and live crane setups across Jharkhand?',
+              a: 'Yes! We have licensed cinematic drone pilots and heavy-duty camera cranes with live LED streaming setups. We cover weddings, corporate inaugurations, and vehicle shoots in Koderma, Hazaribagh, Ranchi, Dhanbad, Giridih, and surrounding areas.'
+            },
+            {
+              q: 'What finishes are available for 12x36 Karizma and Canvera albums?',
+              a: 'We offer non-tearable waterproof Royal Velvet, Matt Canvera, Glossy Metallic, Embossed Leather cases, and Acrylic Glass covers. Every album is digitally designed with panoramic seamless layflat printing.'
+            },
+            {
+              q: 'Can we book Ashish Wedding Film Studio for destination weddings outside Jharkhand?',
+              a: 'Absolutely. Our full cinematic crew travels across all states of India, including Bihar, Uttar Pradesh, West Bengal, Rajasthan, and Goa for luxury destination weddings and creative pre-wedding shoots.'
+            },
+          ].map((faq, idx) => (
+            <div
+              key={idx}
+              className="rounded-2xl bg-neutral-900/80 border border-neutral-800 overflow-hidden transition-all"
+            >
+              <button
+                type="button"
+                onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                className="w-full px-5 py-4 text-left flex items-center justify-between gap-4 hover:bg-neutral-800/40 transition-colors"
+              >
+                <span className="font-semibold text-xs sm:text-sm text-white">{faq.q}</span>
+                {openFaq === idx ? (
+                  <ChevronUp className="w-4 h-4 text-amber-400 shrink-0" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-neutral-400 shrink-0" />
+                )}
+              </button>
+              {openFaq === idx && (
+                <div className="px-5 pb-4 text-xs text-neutral-300 leading-relaxed border-t border-neutral-800/60 pt-3">
+                  {faq.a}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </section>
 

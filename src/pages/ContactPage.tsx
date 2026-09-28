@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { api } from '../api/client';
 import { useToast } from '../context/ToastContext';
+import { STUDIO_SOCIAL_LINKS } from '../data/studioData';
 
 interface ContactPageProps {
   onOpenBooking: () => void;
@@ -143,30 +144,36 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenBooking, onNavig
                 <span className="text-xs font-bold uppercase tracking-wider text-neutral-400 block mb-3">
                   Follow Our Live Stories & Reels
                 </span>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <a
-                    href="https://instagram.com"
+                    id="contact-facebook-link"
+                    href={STUDIO_SOCIAL_LINKS.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 hover:border-blue-500/50 hover:bg-blue-500/10 text-blue-400 text-xs font-bold flex items-center gap-2 transition-all shadow-sm"
+                    title="Visit Ashish Wedding Film Facebook Page"
+                  >
+                    <Facebook className="w-4 h-4" />
+                    <span>Facebook Page</span>
+                  </a>
+                  <a
+                    id="contact-instagram-link"
+                    href={STUDIO_SOCIAL_LINKS.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 hover:border-pink-500/50 hover:bg-pink-500/10 text-pink-400 text-xs font-bold flex items-center gap-2 transition-all"
+                    title="Follow Ashish Wedding Film on Instagram"
                   >
                     <Instagram className="w-4 h-4" />
                     <span>Instagram</span>
                   </a>
                   <a
-                    href="https://facebook.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 hover:border-blue-500/50 hover:bg-blue-500/10 text-blue-400 text-xs font-bold flex items-center gap-2 transition-all"
-                  >
-                    <Facebook className="w-4 h-4" />
-                    <span>Facebook</span>
-                  </a>
-                  <a
-                    href="https://youtube.com"
+                    id="contact-youtube-link"
+                    href={STUDIO_SOCIAL_LINKS.youtube}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-4 py-2 rounded-xl bg-neutral-950 border border-neutral-800 hover:border-red-500/50 hover:bg-red-500/10 text-red-400 text-xs font-bold flex items-center gap-2 transition-all"
+                    title="Watch Ashish Wedding Film 4K Cinema on YouTube"
                   >
                     <Youtube className="w-4 h-4" />
                     <span>YouTube 4K</span>
@@ -226,7 +233,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenBooking, onNavig
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Rajesh Singh"
+                    placeholder="Enter your full name"
                     className="w-full bg-neutral-950 border border-neutral-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-amber-500"
                   />
                 </div>
@@ -241,7 +248,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenBooking, onNavig
                       required
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+91 87090 17294"
+                      placeholder="Enter your mobile number"
                       className="w-full bg-neutral-950 border border-neutral-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-amber-500"
                     />
                   </div>
@@ -254,7 +261,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({ onOpenBooking, onNavig
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your.email@gmail.com"
+                      placeholder="Enter your email address"
                       className="w-full bg-neutral-950 border border-neutral-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-white focus:outline-none focus:border-amber-500"
                     />
                   </div>

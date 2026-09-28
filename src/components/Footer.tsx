@@ -10,10 +10,11 @@ import {
   Clock, 
   Heart, 
   ShieldCheck, 
-  Calendar,
-  Sparkles,
+  Calendar, 
+  Sparkles, 
   MessageSquare
 } from 'lucide-react';
+import { STUDIO_SOCIAL_LINKS } from '../data/studioData';
 
 interface FooterProps {
   onNavigate: (page: string, param?: string) => void;
@@ -95,31 +96,34 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
               </p>
               <div className="flex items-center gap-3">
                 <a
-                  id="footer-instagram-link"
-                  href="https://instagram.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-pink-500/50 hover:bg-pink-500/10 text-pink-400 flex items-center justify-center transition-all hover:scale-110"
-                >
-                  <Instagram className="w-5 h-5" />
-                </a>
-                <a
                   id="footer-facebook-link"
-                  href="https://facebook.com"
+                  href={STUDIO_SOCIAL_LINKS.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Facebook"
+                  aria-label="Facebook - Ashish Wedding Film Studio"
+                  title="Official Facebook Page: facebook.com/ashishweddingfilm"
                   className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-blue-500/50 hover:bg-blue-500/10 text-blue-400 flex items-center justify-center transition-all hover:scale-110"
                 >
                   <Facebook className="w-5 h-5" />
                 </a>
                 <a
-                  id="footer-youtube-link"
-                  href="https://youtube.com"
+                  id="footer-instagram-link"
+                  href={STUDIO_SOCIAL_LINKS.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="YouTube"
+                  aria-label="Instagram - Ashish Wedding Film Studio"
+                  title="Official Instagram: instagram.com/ashishweddingfilm"
+                  className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-pink-500/50 hover:bg-pink-500/10 text-pink-400 flex items-center justify-center transition-all hover:scale-110"
+                >
+                  <Instagram className="w-5 h-5" />
+                </a>
+                <a
+                  id="footer-youtube-link"
+                  href={STUDIO_SOCIAL_LINKS.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="YouTube - Ashish Wedding Film Studio"
+                  title="Official YouTube 4K: youtube.com/@ashishweddingfilm"
                   className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-red-500/50 hover:bg-red-500/10 text-red-400 flex items-center justify-center transition-all hover:scale-110"
                 >
                   <Youtube className="w-5 h-5" />
@@ -147,6 +151,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
               <li>
                 <button onClick={() => handleNav('gallery')} className="hover:text-amber-400 transition-colors">
                   Gallery & Films
+                </button>
+              </li>
+              <li>
+                <button onClick={() => handleNav('karizma-albums')} className="hover:text-amber-400 transition-colors text-amber-400/90 font-medium">
+                  Karizma Wedding Albums
                 </button>
               </li>
               <li>
@@ -273,6 +282,22 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
             </div>
           </div>
 
+        </div>
+
+        {/* SEO Tag Cloud for Search Indexing */}
+        <div className="mt-12 pt-6 border-t border-neutral-900/80 text-[11px] text-neutral-400 space-y-2">
+          <div className="font-bold text-neutral-300 uppercase tracking-wider text-[10px]">
+            Popular Searches &amp; Regional Hubs:
+          </div>
+          <p className="leading-relaxed">
+            <span className="text-amber-400/80 font-medium">Koderma &amp; Jhumri Telaiya:</span> Wedding Photographer in Koderma • Best Videographer in Jhumri Telaiya • Pre-Wedding Shoot Tilaiya Dam • 12x36 Karizma Album Maker Koderma • Canvera Photo Album Jhumri Telaiya • Vehicle Delivery Shoot Koderma • Music Recording Studio Koderma • Drone Videography Koderma.
+          </p>
+          <p className="leading-relaxed">
+            <span className="text-amber-400/80 font-medium">Jharkhand &amp; Bihar:</span> Top Wedding Photographer in Jharkhand • Cinematic Wedding Film Ranchi • Wedding Cinematographer Hazaribagh • Event Photographer Dhanbad • Candid Photography Giridih • Wedding Studio Bokaro • Destination Wedding Crew Bihar &amp; Jharkhand.
+          </p>
+          <p className="leading-relaxed">
+            <span className="text-amber-400/80 font-medium">All India:</span> Luxury Wedding Photography India • 4K Sony FX Multi-Camera Crew • Pan-India Pre-Wedding Films • Certified Photography &amp; Video Editing Academy.
+          </p>
         </div>
 
         {/* Bottom Bar */}

@@ -9,10 +9,17 @@ import {
   User, 
   Calendar,
   Grid,
-  Layers
+  Layers,
+  Plus,
+  Trash2,
+  ShieldCheck,
+  Upload
 } from 'lucide-react';
 import { api } from '../api/client';
 import { GalleryItem } from '../types';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
+import { GalleryUploadModal } from '../components/GalleryUploadModal';
 
 interface GalleryPageProps {
   onOpenLightbox: (item: GalleryItem) => void;
@@ -20,13 +27,31 @@ interface GalleryPageProps {
 }
 
 export const GalleryPage: React.FC<GalleryPageProps> = ({ onOpenLightbox, onOpenBooking }) => {
+  const { isAdmin, loginWithDemoAdmin } = useAuth();
+  const { showToast } = useToast();
+
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const [mediaType, setMediaType] = useState<'all' | 'image' | 'video'>('all');
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   useEffect(() => {
     api.getGallery().then(setItems).catch(console.error);
   }, []);
+
+  const handleDeletePhoto = async (id: string, title: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const confirmed = window.confirm(`Are you sure you want to delete "${title}" from the gallery?`);
+    if (!confirmed) return;
+
+    try {
+      await api.deleteGalleryItem(id);
+      showToast(`"${title}" deleted from gallery`, 'info');
+      setItems(prev => prev.filter(item => item.id !== id));
+    } catch (err: any) {
+      showToast(err.message || 'Failed to delete gallery item', 'error');
+    }
+  };
 
   const categories = [
     { id: 'all', label: 'All Media' },
@@ -45,7 +70,7 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onOpenLightbox, onOpen
 
   return (
     <div id="gallery-page" className="min-h-screen bg-neutral-950 text-neutral-100 pt-28 pb-20 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-10">
+      <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
@@ -60,6 +85,56 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onOpenLightbox, onOpen
             Every celebration has a heartbeat. Explore our real weddings, couple shoots at Tilaiya reservoir, car delivery reels, and sound sessions.
           </p>
         </div>
+
+        {/* Admin Bar */}
+        {isAdmin ? (
+          <div className="bg-gradient-to-r from-amber-500/15 via-amber-600/10 to-transparent border border-amber-500/30 rounded-3xl p-4 sm:p-5 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-white">
+                    Studio Admin Control Active
+                  </h2>
+                  <span className="px-2 py-0.5 rounded text-[10px] bg-amber-500 text-neutral-950 font-bold uppercase">
+                    Admin
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-400">
+                  You can upload new photos or click the delete button on any photo to remove it immediately.
+                </p>
+              </div>
+            </div>
+
+            <button
+              id="gallery-admin-upload-btn"
+              onClick={() => setIsUploadModalOpen(true)}
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 shrink-0 group"
+            >
+              <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
+              <span>+ Upload Photo / Video (फोटो जोड़ें)</span>
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-end">
+            <button
+              onClick={async () => {
+                try {
+                  await loginWithDemoAdmin();
+                  showToast('Admin mode enabled! You can now Add & Delete photos.', 'success');
+                } catch (e: any) {
+                  showToast(e.message || 'Login failed', 'error');
+                }
+              }}
+              className="text-xs text-neutral-400 hover:text-amber-300 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral-800 hover:border-amber-500/40 bg-neutral-900/60 transition-colors"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+              <span>Studio Owner? 1-Click Admin Access (Add/Delete Photos)</span>
+            </button>
+          </div>
+        )}
 
         {/* Filter Controls */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-neutral-900/80 p-4 rounded-3xl border border-neutral-800 backdrop-blur-md">
@@ -124,6 +199,19 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onOpenLightbox, onOpen
               />
               <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent opacity-80 group-hover:opacity-95 transition-opacity" />
 
+              {/* Admin Direct Delete Button */}
+              {isAdmin && (
+                <button
+                  id={`gallery-delete-${item.id}`}
+                  onClick={(e) => handleDeletePhoto(item.id, item.title, e)}
+                  className="absolute top-4 left-4 z-20 px-3 py-1.5 rounded-xl bg-red-950/90 hover:bg-red-850 border border-red-700/60 text-red-200 text-xs font-bold flex items-center gap-1.5 shadow-xl transition-transform hover:scale-105"
+                  title="Delete Photo from website"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete</span>
+                </button>
+              )}
+
               {item.type === 'video' && (
                 <div className="absolute top-4 right-4 w-11 h-11 rounded-full bg-amber-500 text-neutral-950 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <Play className="w-5 h-5 fill-neutral-950 ml-0.5" />
@@ -161,7 +249,19 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({ onOpenLightbox, onOpen
           </button>
         </div>
 
+        {/* Upload Modal */}
+        {isUploadModalOpen && (
+          <GalleryUploadModal
+            isOpen={isUploadModalOpen}
+            onClose={() => setIsUploadModalOpen(false)}
+            onItemCreated={(newItem) => {
+              setItems(prev => [newItem, ...prev]);
+            }}
+          />
+        )}
+
       </div>
     </div>
   );
 };
+
